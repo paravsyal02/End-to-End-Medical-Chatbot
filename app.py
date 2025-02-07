@@ -11,13 +11,10 @@ import os
 
 app = Flask(__name__)
 
+# Load environment variables
 load_dotenv()
-
-PINECONE_API_KEY = os.environ.get('PINECONE_API_KEY')
-GOOGLE_API_KEY = os.environ.get('GOOGLE_API_KEY')
-
-os.environ['PINECONE_API_KEY'] = PINECONE_API_KEY
-os.environ['GOOGLE_API_KEY'] = GOOGLE_API_KEY
+PINECONE_API_KEY = os.getenv("PINECONE_API_KEY")
+GOOGLE_API_KEY = os.getenv("GOOGLE_API_KEY")
 
 embeddings = download_hugging_face_embeddings()
 
@@ -38,7 +35,7 @@ llm = ChatGoogleGenerativeAI(
     temperature=0.6,
     timeout=None,
     max_retries=2,
-    api_key="AIzaSyB-iXY4zrCA_59BjVUkvmxWlbLLys5LgnY" 
+    api_key=GOOGLE_API_KEY, 
 )
 
 prompt = ChatPromptTemplate.from_messages(
@@ -69,5 +66,5 @@ def chat():
 
 
 
-if __name__ == 'main':
+if __name__ == "__main__":
     app.run(host="0.0.0.0", port=8080, debug=True)
