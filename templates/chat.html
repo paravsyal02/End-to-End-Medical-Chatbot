@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chatbot</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <div class="chat-container">
+        <div class="chat-box" id="chat-box">
+            <div class="chat-message bot">Hello! How can I assist you today?</div>
+        </div>
+        <div class="chat-input-container">
+            <input type="text" id="user-input" placeholder="Type a message...">
+            <button onclick="sendMessage()">Send</button>
+        </div>
+    </div>
+
+    <script>
+        function sendMessage() {
+            let inputField = document.getElementById("user-input");
+            let userMessage = inputField.value.trim();
+            
+            if (userMessage === "") return;
+
+            let chatBox = document.getElementById("chat-box");
+
+            // Add user message
+            let userMessageDiv = document.createElement("div");
+            userMessageDiv.className = "chat-message user";
+            userMessageDiv.innerText = userMessage;
+            chatBox.appendChild(userMessageDiv);
+
+            // Auto-reply from bot (static response for now)
+            let botMessageDiv = document.createElement("div");
+            botMessageDiv.className = "chat-message bot";
+            botMessageDiv.innerText = "I'm just a simple chatbot!";
+            chatBox.appendChild(botMessageDiv);
+
+            // Clear input field
+            inputField.value = "";
+
+            // Auto-scroll to the latest message
+            chatBox.scrollTop = chatBox.scrollHeight;
+        }
+    </script>
+
+</body>
+</html>
