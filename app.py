@@ -18,31 +18,28 @@ GOOGLE_API_KEY = os.getenv("GOOGLE_API_KEY")
 
 embeddings = download_hugging_face_embeddings()
 
+index_name = "medicalbot"
 
-index_name= "medicalbot"
-
-#Embed each chunk and upsert the embeddings into your Pinecone Index
+# Embed each chunk and upsert the embeddings into your Pinecone Index
 docsearch = PineconeVectorStore.from_existing_index(
-        index_name=index_name,
-        embedding=embeddings
+    index_name=index_name,
+    embedding=embeddings
 )
 
 retriever = docsearch.as_retriever()
-
 
 llm = ChatGoogleGenerativeAI(
     model="gemini-1.5-flash",
     temperature=0.6,
     timeout=None,
     max_retries=2,
-    api_key=GOOGLE_API_KEY, 
+    api_key=GOOGLE_API_KEY,
 )
 
 prompt = ChatPromptTemplate.from_messages(
     [
-      ("system", system_prompt),
-      ("human", "{input}"),
-
+        ("system", system_prompt),
+        ("human", "{input}"),
     ]
 )
 
@@ -54,16 +51,21 @@ rag_chain = create_retrieval_chain(retriever, question_answer_chain)
 def index():
     return render_template('chat.html')
 
-@app.route("/get", methods=["GET", "POST"])  
+
+@app.route("/get", methods=["POST"])
 def chat():
     msg = request.form["msg"]
-    input = msg
-    print(input)
-    retrieved_docs = retriever.invoke(msg)
-    response = rag_chain.invoke({"input": msg, "context": retrieved_docs})
-    print("Response : ", response["answer"])
-    return str(response["answer"])
+    print(f"Received message: {msg}")  # Debugging the input
 
+    # Retrieve relevant documents from Pinecone vector store
+    retrieved_docs = retriever.get_relevant_documents(msg)
+    print(f"Retrieved documents: {retrieved_docs}")  # Debugging retrieved docs
+
+    # Generate response using the RAG (retrieval-augmented generation) chain
+    response = rag_chain.invoke({"input": msg, "context": retrieved_docs})
+    print(f"Response: {response['answer']}")  # Debugging response
+
+    return str(response["answer"])
 
 
 if __name__ == "__main__":
